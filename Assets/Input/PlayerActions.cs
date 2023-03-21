@@ -44,6 +44,15 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Break"",
+                    ""type"": ""Value"",
+                    ""id"": ""607d5584-2334-4ca7-bbaf-0c1ec42adbbc"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -90,6 +99,17 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
                     ""action"": ""Directions"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f0858351-53a6-4c0c-8113-ee62d2e2e9fa"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Break"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -100,6 +120,7 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         m_CarMovement = asset.FindActionMap("CarMovement", throwIfNotFound: true);
         m_CarMovement_Gas = m_CarMovement.FindAction("Gas", throwIfNotFound: true);
         m_CarMovement_Directions = m_CarMovement.FindAction("Directions", throwIfNotFound: true);
+        m_CarMovement_Break = m_CarMovement.FindAction("Break", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -163,12 +184,14 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
     private List<ICarMovementActions> m_CarMovementActionsCallbackInterfaces = new List<ICarMovementActions>();
     private readonly InputAction m_CarMovement_Gas;
     private readonly InputAction m_CarMovement_Directions;
+    private readonly InputAction m_CarMovement_Break;
     public struct CarMovementActions
     {
         private @PlayerActions m_Wrapper;
         public CarMovementActions(@PlayerActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Gas => m_Wrapper.m_CarMovement_Gas;
         public InputAction @Directions => m_Wrapper.m_CarMovement_Directions;
+        public InputAction @Break => m_Wrapper.m_CarMovement_Break;
         public InputActionMap Get() { return m_Wrapper.m_CarMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -184,6 +207,9 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
             @Directions.started += instance.OnDirections;
             @Directions.performed += instance.OnDirections;
             @Directions.canceled += instance.OnDirections;
+            @Break.started += instance.OnBreak;
+            @Break.performed += instance.OnBreak;
+            @Break.canceled += instance.OnBreak;
         }
 
         private void UnregisterCallbacks(ICarMovementActions instance)
@@ -194,6 +220,9 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
             @Directions.started -= instance.OnDirections;
             @Directions.performed -= instance.OnDirections;
             @Directions.canceled -= instance.OnDirections;
+            @Break.started -= instance.OnBreak;
+            @Break.performed -= instance.OnBreak;
+            @Break.canceled -= instance.OnBreak;
         }
 
         public void RemoveCallbacks(ICarMovementActions instance)
@@ -215,5 +244,6 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
     {
         void OnGas(InputAction.CallbackContext context);
         void OnDirections(InputAction.CallbackContext context);
+        void OnBreak(InputAction.CallbackContext context);
     }
 }
