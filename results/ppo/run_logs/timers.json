@@ -1,0 +1,47 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1681904546",
+        "python_version": "3.7.0 (default, Oct  9 2018, 10:31:47) \n[GCC 7.3.0]",
+        "command_line_arguments": "/home/nagisa/.conda/envs/mlAgent/bin/mlagents-learn",
+        "mlagents_version": "0.28.0",
+        "mlagents_envs_version": "0.28.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "1.8.1+cu102",
+        "numpy_version": "1.21.6",
+        "end_time_seconds": "1681904578"
+    },
+    "total": 32.32170413700078,
+    "count": 1,
+    "self": 0.005878149000636768,
+    "children": {
+        "run_training.setup": {
+            "total": 0.015764670999487862,
+            "count": 1,
+            "self": 0.015764670999487862
+        },
+        "TrainerController.start_learning": {
+            "total": 32.300061317000655,
+            "count": 1,
+            "self": 0.0007065700046950951,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 32.299324225998134,
+                    "count": 1,
+                    "self": 32.299324225998134
+                },
+                "trainer_threads": {
+                    "total": 3.7720019463449717e-06,
+                    "count": 1,
+                    "self": 3.7720019463449717e-06
+                },
+                "TrainerController._save_models": {
+                    "total": 2.6748995878733695e-05,
+                    "count": 1,
+                    "self": 2.6748995878733695e-05
+                }
+            }
+        }
+    }
+}
