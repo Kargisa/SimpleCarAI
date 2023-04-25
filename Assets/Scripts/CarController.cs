@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class CarController : MonoBehaviour
 {
+    public bool playing;
+    
     [Header("Movement")] 
     [SerializeField] private float moveForce;
     [SerializeField] private float breakForce;
@@ -24,6 +23,8 @@ public class CarController : MonoBehaviour
     [SerializeField] private Transform frontRightWheelTransform;
     [SerializeField] private Transform backLeftWheelTransform;
     [SerializeField] private Transform backRightWheelTransform;
+
+    [Header("UI")] [SerializeField] private TMP_Text speedText;
     
     private Rigidbody _rb;
     
@@ -33,7 +34,7 @@ public class CarController : MonoBehaviour
     private float _currentMoveForce = 0;
     private float _currentBreakForce = 0;
     private float _currentTurningAngle = 0;
-
+    
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
@@ -41,17 +42,15 @@ public class CarController : MonoBehaviour
 
     private void Update()
     {
-        _currentMoveForce = InputManager.PlayerActions.CarMovement.Gas.ReadValue<float>() * moveForce;
-        _currentTurningAngle = InputManager.PlayerActions.CarMovement.Directions.ReadValue<float>() * turningAngle;
-        _currentBreakForce = InputManager.PlayerActions.CarMovement.Break.ReadValue<float>() * breakForce;
+        if (playing)
+            GetInput();
     }
 
     private void FixedUpdate()
     {
-        StartCoroutine(CalculateVelocity());
-        
-        frontLeftWheel.motorTorque = _currentMoveForce;
-        frontRightWheel.motorTorque = _currentMoveForce;
+
+        frontLeftWheel.motorTorque = _currentMoveForce * 0.03f;
+        frontRightWheel.motorTorque = _currentMoveForce * 0.03f;
 
         frontLeftWheel.brakeTorque = _currentBreakForce;
         frontRightWheel.brakeTorque = _currentBreakForce;
@@ -65,11 +64,14 @@ public class CarController : MonoBehaviour
         UpdateWheel(frontLeftWheel, frontLeftWheelTransform);
         UpdateWheel(backRightWheel, backRightWheelTransform);
         UpdateWheel(backLeftWheel, backLeftWheelTransform);
-        
+
         if ((frontLeftWheel.isGrounded || frontRightWheel.isGrounded) && _currentBreakForce == 0)
             _rb.AddRelativeForce(_currentMoveForce * Vector3.forward);
         else if (_currentBreakForce > 0)
             _rb.AddRelativeForce(_currentBreakForce * Vector3.back);
+        
+        StartCoroutine(CalculateVelocity());
+        UpdateSpeedUI(_currentSpeed);
     }
 
     private void UpdateWheel(WheelCollider collider, Transform trans)
@@ -83,7 +85,15 @@ public class CarController : MonoBehaviour
         trans.rotation = _rotation;
     }
 
-    IEnumerator CalculateVelocity()
+    public void ResetCar()
+    {
+        _rb.position = Vector3.zero;
+        _rb.rotation = Quaternion.Euler(0, 0, 0);
+        _rb.angularVelocity = Vector3.zero;
+        _rb.velocity = Vector3.zero;
+
+    }
+    private IEnumerator CalculateVelocity()
     {
         //Gets starting position position of the RB
         //then waits for end of FixedUpdate to get the end position
@@ -95,6 +105,24 @@ public class CarController : MonoBehaviour
         //then calculates the speed that it currently moves, in km/h
         Vector3 currentVelocity = (startPos - endPos) / Time.fixedDeltaTime;
         _currentSpeed = currentVelocity.magnitude * 3.6f;
-        Debug.Log(_currentSpeed.ToString("#.##") + "km/h");
+    }
+
+    private void GetInput()
+    {
+        _currentMoveForce = InputManager.PlayerActions.CarMovement.Gas.ReadValue<float>() * moveForce;
+        _currentTurningAngle = InputManager.PlayerActions.CarMovement.Directions.ReadValue<float>() * turningAngle;
+        _currentBreakForce = InputManager.PlayerActions.CarMovement.Break.ReadValue<float>() * breakForce;
+    }
+
+    public void SetInputs(float moveAmount, float turningAmount, float breakAmount)
+    {
+        _currentMoveForce = moveAmount * moveForce;
+        _currentTurningAngle = turningAmount * turningAngle;
+        _currentBreakForce = breakAmount * breakForce;
+    }
+    
+    private void UpdateSpeedUI(float newSpeed = 0f)
+    {
+        speedText.text = $"{newSpeed:#} km/h";
     }
 }
