@@ -53,6 +53,15 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ReverseGear"",
+                    ""type"": ""Value"",
+                    ""id"": ""0cd3d941-8152-48ec-9c16-83f946325fbc"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -110,6 +119,17 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
                     ""action"": ""Break"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3d9a32b1-13ae-4d39-a4ad-2aac038fc27e"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ReverseGear"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -121,6 +141,7 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         m_CarMovement_Gas = m_CarMovement.FindAction("Gas", throwIfNotFound: true);
         m_CarMovement_Directions = m_CarMovement.FindAction("Directions", throwIfNotFound: true);
         m_CarMovement_Break = m_CarMovement.FindAction("Break", throwIfNotFound: true);
+        m_CarMovement_ReverseGear = m_CarMovement.FindAction("ReverseGear", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -185,6 +206,7 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_CarMovement_Gas;
     private readonly InputAction m_CarMovement_Directions;
     private readonly InputAction m_CarMovement_Break;
+    private readonly InputAction m_CarMovement_ReverseGear;
     public struct CarMovementActions
     {
         private @PlayerActions m_Wrapper;
@@ -192,6 +214,7 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         public InputAction @Gas => m_Wrapper.m_CarMovement_Gas;
         public InputAction @Directions => m_Wrapper.m_CarMovement_Directions;
         public InputAction @Break => m_Wrapper.m_CarMovement_Break;
+        public InputAction @ReverseGear => m_Wrapper.m_CarMovement_ReverseGear;
         public InputActionMap Get() { return m_Wrapper.m_CarMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -210,6 +233,9 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
             @Break.started += instance.OnBreak;
             @Break.performed += instance.OnBreak;
             @Break.canceled += instance.OnBreak;
+            @ReverseGear.started += instance.OnReverseGear;
+            @ReverseGear.performed += instance.OnReverseGear;
+            @ReverseGear.canceled += instance.OnReverseGear;
         }
 
         private void UnregisterCallbacks(ICarMovementActions instance)
@@ -223,6 +249,9 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
             @Break.started -= instance.OnBreak;
             @Break.performed -= instance.OnBreak;
             @Break.canceled -= instance.OnBreak;
+            @ReverseGear.started -= instance.OnReverseGear;
+            @ReverseGear.performed -= instance.OnReverseGear;
+            @ReverseGear.canceled -= instance.OnReverseGear;
         }
 
         public void RemoveCallbacks(ICarMovementActions instance)
@@ -245,5 +274,6 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         void OnGas(InputAction.CallbackContext context);
         void OnDirections(InputAction.CallbackContext context);
         void OnBreak(InputAction.CallbackContext context);
+        void OnReverseGear(InputAction.CallbackContext context);
     }
 }

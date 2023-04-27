@@ -9,6 +9,7 @@ public class CarController : MonoBehaviour
     
     [Header("Movement")] 
     [SerializeField] private float moveForce;
+    [SerializeField] private float backForce;
     [SerializeField] private float breakForce;
     [SerializeField] private float turningAngle;
     
@@ -32,6 +33,7 @@ public class CarController : MonoBehaviour
     private float _currentSpeed = 0f;
 
     private float _currentMoveForce = 0;
+    private float _currentBackForce = 0;
     private float _currentBreakForce = 0;
     private float _currentTurningAngle = 0;
     
@@ -45,12 +47,11 @@ public class CarController : MonoBehaviour
         if (playing)
             GetInput();
     }
-
+    
     private void FixedUpdate()
     {
-
-        frontLeftWheel.motorTorque = _currentMoveForce * 0.03f;
-        frontRightWheel.motorTorque = _currentMoveForce * 0.03f;
+        frontLeftWheel.motorTorque = (_currentMoveForce - _currentBackForce) * 0.03f;
+        frontRightWheel.motorTorque = (_currentMoveForce - _currentBackForce) * 0.03f;
 
         frontLeftWheel.brakeTorque = _currentBreakForce;
         frontRightWheel.brakeTorque = _currentBreakForce;
@@ -66,7 +67,10 @@ public class CarController : MonoBehaviour
         UpdateWheel(backLeftWheel, backLeftWheelTransform);
 
         if ((frontLeftWheel.isGrounded || frontRightWheel.isGrounded) && _currentBreakForce == 0)
+        {
             _rb.AddRelativeForce(_currentMoveForce * Vector3.forward);
+            _rb.AddRelativeForce(_currentBackForce * Vector3.back);
+        }
         else if (_currentBreakForce > 0)
             _rb.AddRelativeForce(_currentBreakForce * Vector3.back);
         
@@ -110,13 +114,15 @@ public class CarController : MonoBehaviour
     private void GetInput()
     {
         _currentMoveForce = InputManager.PlayerActions.CarMovement.Gas.ReadValue<float>() * moveForce;
+        _currentBackForce = InputManager.PlayerActions.CarMovement.ReverseGear.ReadValue<float>() * backForce;
         _currentTurningAngle = InputManager.PlayerActions.CarMovement.Directions.ReadValue<float>() * turningAngle;
         _currentBreakForce = InputManager.PlayerActions.CarMovement.Break.ReadValue<float>() * breakForce;
     }
 
-    public void SetInputs(float moveAmount, float turningAmount, float breakAmount)
+    public void SetInputs(float moveAmount, float backAmount, float turningAmount, float breakAmount)
     {
         _currentMoveForce = moveAmount * moveForce;
+        _currentBackForce = backAmount * backForce;
         _currentTurningAngle = turningAmount * turningAngle;
         _currentBreakForce = breakAmount * breakForce;
     }
