@@ -5,19 +5,13 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    private CheckpointManager checkpointManager;
+    public int index;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<CarController>(out CarController controller))
+        if (other.TryGetComponent<CheckpointManager>(out CheckpointManager manager))
         {
-            checkpointManager.CheckpointReached(this, controller);
+            manager.CheckpointReached(this);
         }
     }
-
-    public void SetCheckpointManager(CheckpointManager manager)
-    {
-        checkpointManager = manager;
-    }
-    
 }

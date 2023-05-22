@@ -7,39 +7,38 @@ using Unity.MLAgents.Actuators;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[RequireComponent(typeof(CarController), typeof(CheckpointManager))]
 public class MoveToGoalAgent : Agent
 {
     [SerializeField] private Transform goalTransform;
-    [SerializeField] private CheckpointManager checkpointManager;
-
+    
+    private CheckpointManager _checkpointManager;
     private CarController _controller;
-    private Rigidbody _rb;
 
     private void Awake()
     {
+        _checkpointManager = GetComponent<CheckpointManager>();
         _controller = GetComponent<CarController>();
-        _rb = GetComponent<Rigidbody>();
     }
 
     private void Start()
     {
-        checkpointManager.OnCheckpointReached += OnCheckpointReached;
-        checkpointManager.OnWrongCheckpointReached += OnWrongCheckpoint;
+        _checkpointManager.OnCheckpointReached += OnCheckpointReached;
+        _checkpointManager.OnWrongCheckpointReached += OnWrongCheckpoint;
     }
-
 
     public override void OnEpisodeBegin()
     {
         if (_controller.playing)
             Debug.LogWarning("Manual inputs are active! Make sure to not train the AI while manual inputs are active!");
         
-        checkpointManager.ResetCheckpoints();
+        _checkpointManager.ResetCheckpoints();
         _controller.ResetCar();
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        Vector3 nextCheckpointForward = checkpointManager.GetNextCheckpoint().forward;
+        Vector3 nextCheckpointForward = _checkpointManager.GetNextCheckpoint().forward;
         float directionDot = Vector3.Dot(transform.forward, nextCheckpointForward);
         
         sensor.AddObservation(directionDot);
@@ -93,14 +92,14 @@ public class MoveToGoalAgent : Agent
             return;
 
         if (cca.Controller.transform == transform)
-            AddReward(-1f);
+            AddReward(-0.5f);
     }
     
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Finish"))
         {
-            AddReward(5f);
+            AddReward(10f);
             EndEpisode();
         }
     }
@@ -117,7 +116,7 @@ public class MoveToGoalAgent : Agent
     {
         if (collisionInfo.collider.CompareTag("Respawn"))
         {
-            AddReward(-0.1f);
+            AddReward(-1f * Time.deltaTime);
         }
     }
 }

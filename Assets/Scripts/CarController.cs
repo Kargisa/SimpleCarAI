@@ -2,41 +2,39 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public class CarController : MonoBehaviour
 {
     public bool playing;
-    
-    [Header("Movement")] 
-    [SerializeField] private float moveForce;
+
+    [Header("Movement")] [SerializeField] private float moveForce;
     [SerializeField] private float backForce;
     [SerializeField] private float breakForce;
     [SerializeField] private float turningAngle;
-    
-    [Header("Collider")] 
-    [SerializeField] private WheelCollider frontLeftWheel;
+
+    [Header("Collider")] [SerializeField] private WheelCollider frontLeftWheel;
     [SerializeField] private WheelCollider frontRightWheel;
     [SerializeField] private WheelCollider backLeftWheel;
     [SerializeField] private WheelCollider backRightWheel;
 
-    [Header("Transform")]
-    [SerializeField] private Transform frontLeftWheelTransform;
+    [Header("Transform")] [SerializeField] private Transform frontLeftWheelTransform;
     [SerializeField] private Transform frontRightWheelTransform;
     [SerializeField] private Transform backLeftWheelTransform;
     [SerializeField] private Transform backRightWheelTransform;
 
-    [Header("UI")] [SerializeField] private TMP_Text speedText;
-    
+    [Header("UI")] //[SerializeField] private TMP_Text speedText;
     private Rigidbody _rb;
-    
+
     //Speed is in km/h
-    private float _currentSpeed = 0f;
+    [HideInInspector] public float currentSpeed = 0f;
 
     private float _currentMoveForce = 0;
     private float _currentBackForce = 0;
     private float _currentBreakForce = 0;
     private float _currentTurningAngle = 0;
-    
+
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
@@ -47,7 +45,7 @@ public class CarController : MonoBehaviour
         if (playing)
             GetInput();
     }
-    
+
     private void FixedUpdate()
     {
         frontLeftWheel.motorTorque = (_currentMoveForce - _currentBackForce) * 0.03f;
@@ -73,16 +71,16 @@ public class CarController : MonoBehaviour
         }
         else if (_currentBreakForce > 0)
             _rb.AddRelativeForce(_currentBreakForce * Vector3.back);
-        
+
         StartCoroutine(CalculateVelocity());
-        UpdateSpeedUI(_currentSpeed);
+        UpdateSpeedUI(currentSpeed);
     }
 
     private void UpdateWheel(WheelCollider collider, Transform trans)
     {
         Vector3 _position;
         Quaternion _rotation;
-        
+
         collider.GetWorldPose(out _position, out _rotation);
 
         trans.position = _position;
@@ -91,12 +89,12 @@ public class CarController : MonoBehaviour
 
     public void ResetCar()
     {
-        _rb.position = Vector3.zero;
-        _rb.rotation = Quaternion.Euler(0, 0, 0);
         _rb.angularVelocity = Vector3.zero;
         _rb.velocity = Vector3.zero;
-
+        _rb.position = new Vector3(Random.Range(-9, +9), 0, Random.Range(0, -7));
+        _rb.rotation = Quaternion.Euler(0, 0, 0);
     }
+
     private IEnumerator CalculateVelocity()
     {
         //Gets starting position position of the RB
@@ -104,11 +102,11 @@ public class CarController : MonoBehaviour
         Vector3 startPos = _rb.position;
         yield return new WaitForFixedUpdate();
         Vector3 endPos = _rb.position;
-        
+
         //calculates the velocity of the car
         //then calculates the speed that it currently moves, in km/h
         Vector3 currentVelocity = (startPos - endPos) / Time.fixedDeltaTime;
-        _currentSpeed = currentVelocity.magnitude * 3.6f;
+        currentSpeed = currentVelocity.magnitude * 3.6f;
     }
 
     private void GetInput()
@@ -126,9 +124,9 @@ public class CarController : MonoBehaviour
         _currentTurningAngle = turningAmount * turningAngle;
         _currentBreakForce = breakAmount * breakForce;
     }
-    
+
     private void UpdateSpeedUI(float newSpeed = 0f)
     {
-        speedText.text = $"{newSpeed:#} km/h";
+        //speedText.text = $"{newSpeed:#} km/h";
     }
 }
