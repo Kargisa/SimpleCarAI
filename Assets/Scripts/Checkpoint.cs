@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    public int index;
+    [HideInInspector] public int index;
 
     private void OnTriggerEnter(Collider other)
     {

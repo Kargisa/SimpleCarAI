@@ -11,6 +11,8 @@ using UnityEngine.Serialization;
 public class MoveToGoalAgent : Agent
 {
     [SerializeField] private Transform goalTransform;
+    [Min(1f)]
+    public int labCount = 1;
     
     private CheckpointManager _checkpointManager;
     private CarController _controller;
@@ -31,7 +33,7 @@ public class MoveToGoalAgent : Agent
     {
         if (_controller.playing)
             Debug.LogWarning("Manual inputs are active! Make sure to not train the AI while manual inputs are active!");
-        
+
         _checkpointManager.ResetCheckpoints();
         _controller.ResetCar();
     }
@@ -40,7 +42,7 @@ public class MoveToGoalAgent : Agent
     {
         Vector3 nextCheckpointForward = _checkpointManager.GetNextCheckpoint().forward;
         float directionDot = Vector3.Dot(transform.forward, nextCheckpointForward);
-        
+
         sensor.AddObservation(directionDot);
         sensor.AddObservation(transform.position);
         sensor.AddObservation(goalTransform.position);
@@ -49,9 +51,8 @@ public class MoveToGoalAgent : Agent
     public override void OnActionReceived(ActionBuffers actions)
     {
         float moveAmount = actions.DiscreteActions[0];
-        float backAmount = actions.DiscreteActions[1];
-        float breakAmount = actions.DiscreteActions[2];
-        float turningAmount = actions.DiscreteActions[3] switch
+        float breakAmount = actions.DiscreteActions[1];
+        float turningAmount = actions.DiscreteActions[2] switch
         {
             0 => 0,
             1 => 1,
@@ -59,16 +60,23 @@ public class MoveToGoalAgent : Agent
             _ => 0
         };
 
-        _controller.SetInputs(moveAmount, backAmount, turningAmount, breakAmount);
+        _controller.SetInputs(moveAmount, turningAmount, breakAmount);
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
-        discreteActions[0] = (int)InputManager.PlayerActions.CarMovement.Gas.ReadValue<float>();
-        discreteActions[1] = (int)InputManager.PlayerActions.CarMovement.ReverseGear.ReadValue<float>();
-        discreteActions[2] = (int)InputManager.PlayerActions.CarMovement.Break.ReadValue<float>();
-        discreteActions[3] = (int)InputManager.PlayerActions.CarMovement.Directions.ReadValue<float>() switch
+
+        
+        if ((int)InputManager.PlayerActions.CarMovement.Gas.ReadValue<float>() == 1 && (int)InputManager.PlayerActions.CarMovement.ReverseGear.ReadValue<float>() == 1)
+            discreteActions[0] = 0;
+        else if ((int)InputManager.PlayerActions.CarMovement.Gas.ReadValue<float>() == 1)
+            discreteActions[0] = 1;
+        else if ((int)InputManager.PlayerActions.CarMovement.ReverseGear.ReadValue<float>() == 1)
+            discreteActions[0] = 2;
+        
+        discreteActions[1] = (int)InputManager.PlayerActions.CarMovement.Break.ReadValue<float>();
+        discreteActions[2] = (int)InputManager.PlayerActions.CarMovement.Directions.ReadValue<float>() switch
         {
             0 => 0,
             1 => 1,
@@ -81,11 +89,11 @@ public class MoveToGoalAgent : Agent
     {
         if (e is not CarControllerArgs cca)
             return;
-        
+
         if (cca.Controller.transform == transform)
             AddReward(1f);
     }
-    
+
     private void OnWrongCheckpoint(object sender, EventArgs e)
     {
         if (e is not CarControllerArgs cca)
@@ -94,11 +102,14 @@ public class MoveToGoalAgent : Agent
         if (cca.Controller.transform == transform)
             AddReward(-0.5f);
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Finish"))
         {
+            if (_checkpointManager.lab != labCount) 
+                return;
+            
             AddReward(10f);
             EndEpisode();
         }
@@ -116,7 +127,7 @@ public class MoveToGoalAgent : Agent
     {
         if (collisionInfo.collider.CompareTag("Respawn"))
         {
-            AddReward(-1f * Time.deltaTime);
+            AddReward(-0.5f * Time.deltaTime);
         }
     }
 }
