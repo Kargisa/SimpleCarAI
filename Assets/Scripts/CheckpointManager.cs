@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 [RequireComponent(typeof(CarController))]
 public class CheckpointManager : MonoBehaviour
 {
     private Transform _checkpointRoot;
-    
+
     private List<Checkpoint> _allCheckpoints;
-    private int _nextCheckpointIndex;
-    
+    public int nextCheckpointIndex;
+    public int lab = 0;
+
     public event EventHandler OnCheckpointReached;
     public event EventHandler OnWrongCheckpointReached;
 
@@ -19,23 +23,27 @@ public class CheckpointManager : MonoBehaviour
 
     private void Awake()
     {
-        _nextCheckpointIndex = 0;
+        nextCheckpointIndex = 0;
         _allCheckpoints = new List<Checkpoint>();
-        _checkpointRoot = GameObject.FindWithTag("CheckpointManager").transform;
+        _checkpointRoot = GameObject.Find("Checkpoints").transform;
         _carController = GetComponent<CarController>();
-        
-        foreach (Transform checkpoint in _checkpointRoot)
+        int index = 0;
+        foreach (Transform trans in _checkpointRoot)
         {
-            Checkpoint thisCheckpoint = checkpoint.GetComponent<Checkpoint>();
-            _allCheckpoints.Add(thisCheckpoint);
+            Checkpoint checkpoint = trans.GetComponent<Checkpoint>();
+            checkpoint.index = index;
+            _allCheckpoints.Add(checkpoint);
+            index++;
         }
     }
 
     public void CheckpointReached(Checkpoint checkpoint)
     {
-        if (checkpoint.index == _nextCheckpointIndex)
+        if (checkpoint.index == nextCheckpointIndex)
         {
-            _nextCheckpointIndex = (_nextCheckpointIndex + 1) % _allCheckpoints.Count;
+            nextCheckpointIndex = (nextCheckpointIndex + 1) % _allCheckpoints.Count;
+            if (nextCheckpointIndex == 0)
+                lab++;
             OnCheckpointReached?.Invoke(this, new CarControllerArgs(_carController));
             Debug.Log("Correct");
         }
@@ -48,12 +56,14 @@ public class CheckpointManager : MonoBehaviour
 
     public Transform GetNextCheckpoint()
     {
-        return _allCheckpoints[_nextCheckpointIndex].transform;
+        if (_allCheckpoints.Count <= 0)
+            throw new AggregateException("No checkpoints found");
+        return _allCheckpoints[nextCheckpointIndex].transform;
     }
-    
+
     public void ResetCheckpoints()
     {
-        _nextCheckpointIndex = 0;
+        nextCheckpointIndex = 0;
+        lab = 0;
     }
-    
 }

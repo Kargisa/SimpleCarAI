@@ -175,6 +175,7 @@ GameObject:
   - component: {fileID: 9200290243992544019}
   - component: {fileID: 9200290243992544016}
   - component: {fileID: 9200290243992544045}
+  - component: {fileID: 7412335162183409478}
   m_Layer: 6
   m_Name: Car
   m_TagString: Player
@@ -210,7 +211,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.07, y: 0.79, z: 3.59}
+  m_Size: {x: 1.22, y: 0.79, z: 3.59}
   m_Center: {x: 0, y: 0.57, z: 0}
 --- !u!54 &9200290243992544020
 Rigidbody:
@@ -271,8 +272,8 @@ MonoBehaviour:
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
-      BranchSizes: 02000000020000000200000003000000
-    VectorActionSize: 02000000020000000200000003000000
+      BranchSizes: 020000000200000003000000
+    VectorActionSize: 020000000200000003000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
@@ -315,6 +316,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 20000
   goalTransform: {fileID: 0}
+  labCount: 1
 --- !u!114 &9200290243992544045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,6 +343,20 @@ MonoBehaviour:
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
   m_StartVerticalOffset: 0.5
   m_EndVerticalOffset: 0
+--- !u!114 &7412335162183409478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9200290243992544021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286b5eec71697cfbe9b9fe0eb66bb49a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextCheckpointIndex: 0
+  lab: 0
 --- !u!1 &9200290244232499540
 GameObject:
   m_ObjectHideFlags: 0

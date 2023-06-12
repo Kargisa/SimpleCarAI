@@ -27,6 +27,8 @@ public class CarController : MonoBehaviour
     [Header("UI")] //[SerializeField] private TMP_Text speedText;
     private Rigidbody _rb;
 
+    private Vector3 _startPos;
+
     //Speed is in km/h
     [HideInInspector] public float currentSpeed = 0f;
 
@@ -38,6 +40,7 @@ public class CarController : MonoBehaviour
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
+        _startPos = transform.position;
     }
 
     private void Update()
@@ -91,7 +94,8 @@ public class CarController : MonoBehaviour
     {
         _rb.angularVelocity = Vector3.zero;
         _rb.velocity = Vector3.zero;
-        _rb.position = new Vector3(Random.Range(-9, +9), 0, Random.Range(0, -7));
+        //_rb.position = new Vector3(Random.Range(-9, +9), 0, Random.Range(0, -7));
+        _rb.position = _startPos;
         _rb.rotation = Quaternion.Euler(0, 0, 0);
     }
 
@@ -117,10 +121,19 @@ public class CarController : MonoBehaviour
         _currentBreakForce = InputManager.PlayerActions.CarMovement.Break.ReadValue<float>() * breakForce;
     }
 
-    public void SetInputs(float moveAmount, float backAmount, float turningAmount, float breakAmount)
+    public void SetInputs(float moveAmount, float turningAmount, float breakAmount)
     {
-        _currentMoveForce = moveAmount * moveForce;
-        _currentBackForce = backAmount * backForce;
+        switch (moveAmount)
+        {
+            case 1:
+                _currentMoveForce = 1 * moveForce;
+                _currentBackForce = 0 * backForce;
+                break;
+            case 2:
+                _currentBackForce = 1 * backForce;
+                _currentMoveForce = 0 * moveForce;
+                break;
+        }
         _currentTurningAngle = turningAmount * turningAngle;
         _currentBreakForce = breakAmount * breakForce;
     }
