@@ -16,6 +16,7 @@ public class MoveToGoalAgent : Agent
     
     private CheckpointManager _checkpointManager;
     private CarController _controller;
+    Obstacle[] obstacles;
 
     private void Awake()
     {
@@ -27,6 +28,7 @@ public class MoveToGoalAgent : Agent
     {
         _checkpointManager.OnCheckpointReached += OnCheckpointReached;
         _checkpointManager.OnWrongCheckpointReached += OnWrongCheckpoint;
+        obstacles = FindObjectsByType<Obstacle>(FindObjectsSortMode.None);
     }
 
     public override void OnEpisodeBegin()
@@ -43,6 +45,24 @@ public class MoveToGoalAgent : Agent
         Vector3 nextCheckpointForward = _checkpointManager.GetNextCheckpoint().forward;
         float directionDot = Vector3.Dot(transform.forward, nextCheckpointForward);
 
+        Obstacle nearestObstacle = obstacles[0];
+        float distance = Mathf.Infinity;
+
+        foreach (var obstacle in obstacles)
+        {
+            if (obstacle.obstacleType == Obstacle.ObstacleType.Wall)
+                continue;
+
+            float currentDist = Vector3.Distance(transform.position, obstacle.transform.position);
+
+            if (currentDist < distance)
+            {
+                distance = currentDist;
+                nearestObstacle = obstacle;
+            }
+        }
+
+        sensor.AddObservation(nearestObstacle.transform.position);
         sensor.AddObservation(directionDot);
         sensor.AddObservation(transform.position);
         sensor.AddObservation(goalTransform.position);
@@ -74,7 +94,7 @@ public class MoveToGoalAgent : Agent
             discreteActions[0] = 1;
         else if ((int)InputManager.PlayerActions.CarMovement.ReverseGear.ReadValue<float>() == 1)
             discreteActions[0] = 2;
-        
+
         discreteActions[1] = (int)InputManager.PlayerActions.CarMovement.Break.ReadValue<float>();
         discreteActions[2] = (int)InputManager.PlayerActions.CarMovement.Directions.ReadValue<float>() switch
         {
@@ -89,7 +109,7 @@ public class MoveToGoalAgent : Agent
     {
         if (e is not CarControllerArgs cca)
             return;
-
+        
         if (cca.Controller.transform == transform)
             AddReward(1f);
     }
@@ -98,9 +118,9 @@ public class MoveToGoalAgent : Agent
     {
         if (e is not CarControllerArgs cca)
             return;
-
+        
         if (cca.Controller.transform == transform)
-            AddReward(-0.5f);
+            AddReward(-0.1f);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -127,7 +147,8 @@ public class MoveToGoalAgent : Agent
     {
         if (collisionInfo.collider.CompareTag("Respawn"))
         {
-            AddReward(-0.5f * Time.deltaTime);
+            Debug.Log("Collision");
+            AddReward(-0.75f * Time.deltaTime);
         }
     }
 }
