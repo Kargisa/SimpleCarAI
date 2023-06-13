@@ -176,6 +176,8 @@ GameObject:
   - component: {fileID: 9200290243992544016}
   - component: {fileID: 9200290243992544045}
   - component: {fileID: 7412335162183409478}
+  - component: {fileID: 3413659761308187485}
+  - component: {fileID: -6485165234673389036}
   m_Layer: 6
   m_Name: Car
   m_TagString: Player
@@ -268,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 7
+    VectorObservationSize: 10
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -329,15 +331,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bb6b867a41448888c1cd4f99643ad71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SensorName: CarRayPerceptionSensor
+  m_SensorName: CarCheckpointRayPerceptionSensor
   m_DetectableTags: []
-  m_RaysPerDirection: 10
-  m_MaxRayDegrees: 90
+  m_RaysPerDirection: 7
+  m_MaxRayDegrees: 75
   m_SphereCastRadius: 0.2
   m_RayLength: 30
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 407
+    m_Bits: 256
   m_ObservationStacks: 2
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
@@ -357,6 +359,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextCheckpointIndex: 0
   lab: 0
+--- !u!114 &3413659761308187485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9200290243992544021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb6b867a41448888c1cd4f99643ad71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: CarObstaclesRayPerceptionSensor
+  m_DetectableTags: []
+  m_RaysPerDirection: 20
+  m_MaxRayDegrees: 120
+  m_SphereCastRadius: 0.2
+  m_RayLength: 60
+  m_RayLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  m_ObservationStacks: 1
+  rayHitColor: {r: 0, g: 1, b: 0.022976637, a: 1}
+  rayMissColor: {r: 1, g: 0, b: 0, a: 1}
+  m_StartVerticalOffset: 0.5
+  m_EndVerticalOffset: 0
+--- !u!114 &-6485165234673389036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9200290243992544021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2902496c0120472b90269f94a0aec7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Record: 0
+  NumStepsToRecord: 0
+  DemonstrationName: CarRightDemo
+  DemonstrationDirectory: config/Demos
 --- !u!1 &9200290244232499540
 GameObject:
   m_ObjectHideFlags: 0

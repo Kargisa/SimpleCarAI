@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System;
 using System.ComponentModel;
 using System.Linq;
-using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -13,7 +12,9 @@ public class CheckpointManager : MonoBehaviour
     private Transform _checkpointRoot;
 
     private List<Checkpoint> _allCheckpoints;
+    [HideInInspector]
     public int nextCheckpointIndex;
+    [HideInInspector]
     public int lab = 0;
 
     public event EventHandler OnCheckpointReached;
@@ -49,7 +50,7 @@ public class CheckpointManager : MonoBehaviour
         }
         else
         {
-            OnWrongCheckpointReached?.Invoke(this, new CancelEventArgs(_carController));
+            OnWrongCheckpointReached?.Invoke(this, new CarControllerArgs(_carController));
             Debug.Log("Wrong");
         }
     }

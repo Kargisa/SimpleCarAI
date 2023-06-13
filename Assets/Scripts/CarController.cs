@@ -125,6 +125,10 @@ public class CarController : MonoBehaviour
     {
         switch (moveAmount)
         {
+            case 0:
+                _currentMoveForce = 0 * moveForce;
+                _currentBackForce = 0 * backForce;
+                break;
             case 1:
                 _currentMoveForce = 1 * moveForce;
                 _currentBackForce = 0 * backForce;
@@ -132,6 +136,10 @@ public class CarController : MonoBehaviour
             case 2:
                 _currentBackForce = 1 * backForce;
                 _currentMoveForce = 0 * moveForce;
+                break;
+            default:
+                _currentMoveForce = 0 * moveForce;
+                _currentBackForce = 0 * backForce;
                 break;
         }
         _currentTurningAngle = turningAmount * turningAngle;
